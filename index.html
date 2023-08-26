@@ -1,0 +1,1277 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <link rel="stylesheet" href="css/leaflet.css"><link rel="stylesheet" href="css/L.Control.Locate.min.css">
+        <link rel="stylesheet" href="css/qgis2web.css"><link rel="stylesheet" href="css/fontawesome-all.min.css">
+        <link rel="stylesheet" href="css/leaflet-search.css">
+        <link rel="stylesheet" href="css/filter.css">
+<link rel="stylesheet" href="css/nouislider.min.css">
+        <link rel="stylesheet" href="css/leaflet-control-geocoder.Geocoder.css">
+        <link rel="stylesheet" href="css/leaflet-measure.css">
+        <style>
+        html, body, #map {
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            margin: 0;
+        }
+        </style>
+        <title></title>
+    </head>
+    <body>
+        <div id="map">
+        </div>
+        <script src="js/qgis2web_expressions.js"></script>
+        <script src="js/leaflet.js"></script><script src="js/L.Control.Locate.min.js"></script>
+        <script src="js/leaflet.rotatedMarker.js"></script>
+        <script src="js/leaflet.pattern.js"></script>
+        <script src="js/leaflet-hash.js"></script>
+        <script src="js/Autolinker.min.js"></script>
+        <script src="js/rbush.min.js"></script>
+        <script src="js/labelgun.min.js"></script>
+        <script src="js/labels.js"></script>
+        <script src="js/leaflet-control-geocoder.Geocoder.js"></script>
+        <script src="js/leaflet-measure.js"></script>
+        <script src="js/leaflet-search.js"></script>
+        <script src="js/tailDT.js"></script>
+<script src="js/nouislider.min.js"></script>
+<script src="js/wNumb.js"></script>
+        <script src="data/DistrictsandTCas2020_1.js"></script>
+        <script src="data/WDPA_Feb2017_TZAshapefilepolygons_2.js"></script>
+        <script>
+        var highlightLayer;
+        function highlightFeature(e) {
+            highlightLayer = e.target;
+
+            if (e.target.feature.geometry.type === 'LineString') {
+              highlightLayer.setStyle({
+                color: '#ffff00',
+              });
+            } else {
+              highlightLayer.setStyle({
+                fillColor: '#ffff00',
+                fillOpacity: 1
+              });
+            }
+        }
+        var map = L.map('map', {
+            zoomControl:true, maxZoom:28, minZoom:1
+        })
+        var hash = new L.Hash(map);
+        map.attributionControl.setPrefix('<a href="https://github.com/tomchadwin/qgis2web" target="_blank">qgis2web</a> &middot; <a href="https://leafletjs.com" title="A JS library for interactive maps">Leaflet</a> &middot; <a href="https://qgis.org">QGIS</a>');
+        var autolinker = new Autolinker({truncate: {length: 30, location: 'smart'}});
+        L.control.locate({locateOptions: {maxZoom: 19}}).addTo(map);
+        var measureControl = new L.Control.Measure({
+            position: 'topleft',
+            primaryLengthUnit: 'meters',
+            secondaryLengthUnit: 'kilometers',
+            primaryAreaUnit: 'sqmeters',
+            secondaryAreaUnit: 'hectares'
+        });
+        measureControl.addTo(map);
+        document.getElementsByClassName('leaflet-control-measure-toggle')[0]
+        .innerHTML = '';
+        document.getElementsByClassName('leaflet-control-measure-toggle')[0]
+        .className += ' fas fa-ruler';
+        var bounds_group = new L.featureGroup([]);
+        function setBounds() {
+            if (bounds_group.getLayers().length) {
+                map.fitBounds(bounds_group.getBounds());
+            }
+        }
+        map.createPane('pane_OSMStandard_0');
+        map.getPane('pane_OSMStandard_0').style.zIndex = 400;
+        var layer_OSMStandard_0 = L.tileLayer('http://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            pane: 'pane_OSMStandard_0',
+            opacity: 1.0,
+            attribution: '<a href="https://www.openstreetmap.org/copyright">© OpenStreetMap contributors, CC-BY-SA</a>',
+            minZoom: 1,
+            maxZoom: 28,
+            minNativeZoom: 0,
+            maxNativeZoom: 19
+        });
+        layer_OSMStandard_0;
+        map.addLayer(layer_OSMStandard_0);
+        function pop_DistrictsandTCas2020_1(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    for (i in e.target._eventParents) {
+                        e.target._eventParents[i].resetStyle(e.target);
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">Region_Nam</th>\
+                        <td>' + (feature.properties['Region_Nam'] !== null ? autolinker.link(feature.properties['Region_Nam'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Region_Cod'] !== null ? autolinker.link(feature.properties['Region_Cod'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['District_C'] !== null ? autolinker.link(feature.properties['District_C'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">NewDist20</th>\
+                        <td>' + (feature.properties['NewDist20'] !== null ? autolinker.link(feature.properties['NewDist20'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            layer.bindPopup(popupContent, {maxHeight: 400});
+        }
+
+        function style_DistrictsandTCas2020_1_0() {
+            return {
+                pane: 'pane_DistrictsandTCas2020_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(190,178,151,1.0)',
+                interactive: true,
+            }
+        }
+        map.createPane('pane_DistrictsandTCas2020_1');
+        map.getPane('pane_DistrictsandTCas2020_1').style.zIndex = 401;
+        map.getPane('pane_DistrictsandTCas2020_1').style['mix-blend-mode'] = 'normal';
+        var layer_DistrictsandTCas2020_1 = new L.geoJson(json_DistrictsandTCas2020_1, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_DistrictsandTCas2020_1',
+            layerName: 'layer_DistrictsandTCas2020_1',
+            pane: 'pane_DistrictsandTCas2020_1',
+            onEachFeature: pop_DistrictsandTCas2020_1,
+            style: style_DistrictsandTCas2020_1_0,
+        });
+        bounds_group.addLayer(layer_DistrictsandTCas2020_1);
+        map.addLayer(layer_DistrictsandTCas2020_1);
+        function pop_WDPA_Feb2017_TZAshapefilepolygons_2(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    for (i in e.target._eventParents) {
+                        e.target._eventParents[i].resetStyle(e.target);
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">Name</th>\
+                        <td>' + (feature.properties['NAME'] !== null ? autolinker.link(feature.properties['NAME'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Desig</th>\
+                        <td>' + (feature.properties['DESIG'] !== null ? autolinker.link(feature.properties['DESIG'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Gis_M_Area</th>\
+                        <td>' + (feature.properties['GIS_M_AREA'] !== null ? autolinker.link(feature.properties['GIS_M_AREA'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Status year</th>\
+                        <td>' + (feature.properties['STATUS_YR'] !== null ? autolinker.link(feature.properties['STATUS_YR'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            layer.bindPopup(popupContent, {maxHeight: 400});
+        }
+
+        function style_WDPA_Feb2017_TZAshapefilepolygons_2_0() {
+            return {
+                pane: 'pane_WDPA_Feb2017_TZAshapefilepolygons_2',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(190,207,80,1.0)',
+                interactive: true,
+            }
+        }
+        map.createPane('pane_WDPA_Feb2017_TZAshapefilepolygons_2');
+        map.getPane('pane_WDPA_Feb2017_TZAshapefilepolygons_2').style.zIndex = 402;
+        map.getPane('pane_WDPA_Feb2017_TZAshapefilepolygons_2').style['mix-blend-mode'] = 'normal';
+        var layer_WDPA_Feb2017_TZAshapefilepolygons_2 = new L.geoJson(json_WDPA_Feb2017_TZAshapefilepolygons_2, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_WDPA_Feb2017_TZAshapefilepolygons_2',
+            layerName: 'layer_WDPA_Feb2017_TZAshapefilepolygons_2',
+            pane: 'pane_WDPA_Feb2017_TZAshapefilepolygons_2',
+            onEachFeature: pop_WDPA_Feb2017_TZAshapefilepolygons_2,
+            style: style_WDPA_Feb2017_TZAshapefilepolygons_2_0,
+        });
+        bounds_group.addLayer(layer_WDPA_Feb2017_TZAshapefilepolygons_2);
+        map.addLayer(layer_WDPA_Feb2017_TZAshapefilepolygons_2);
+        var osmGeocoder = new L.Control.Geocoder({
+            collapsed: true,
+            position: 'topleft',
+            text: 'Search',
+            title: 'Testing'
+        }).addTo(map);
+        document.getElementsByClassName('leaflet-control-geocoder-icon')[0]
+        .className += ' fa fa-search';
+        document.getElementsByClassName('leaflet-control-geocoder-icon')[0]
+        .title += 'Search for a place';
+        var baseMaps = {};
+        L.control.layers(baseMaps,{'<img src="legend/WDPA_Feb2017_TZAshapefilepolygons_2.png" /> WDPA_Feb2017_TZA-shapefile-polygons': layer_WDPA_Feb2017_TZAshapefilepolygons_2,'<img src="legend/DistrictsandTCas2020_1.png" /> Districts and TC as 2020': layer_DistrictsandTCas2020_1,"OSM Standard": layer_OSMStandard_0,}).addTo(map);
+        setBounds();
+        map.addControl(new L.Control.Search({
+            layer: layer_WDPA_Feb2017_TZAshapefilepolygons_2,
+            initial: false,
+            hideMarkerOnCollapse: true,
+            propertyName: 'NAME'}));
+        document.getElementsByClassName('search-button')[0].className +=
+         ' fa fa-binoculars';
+        var mapDiv = document.getElementById('map');
+        var row = document.createElement('div');
+        row.className="row";
+        row.id="all";
+        row.style.height = "100%";
+        var col1 = document.createElement('div');
+        col1.className="col9";
+        col1.id = "mapWindow";
+        col1.style.height = "99%";
+        col1.style.width = "80%";
+        col1.style.display = "inline-block";
+        var col2 = document.createElement('div');
+        col2.className="col3";
+        col2.id = "menu";
+        col2.style.display = "inline-block";
+        mapDiv.parentNode.insertBefore(row, mapDiv);
+        document.getElementById("all").appendChild(col1);
+        document.getElementById("all").appendChild(col2);
+        col1.appendChild(mapDiv)
+        var Filters = {"NAME": "str","Region_Nam": "str","NewDist20": "str"};
+        function filterFunc() {
+          map.eachLayer(function(lyr){
+          if ("options" in lyr && "dataVar" in lyr["options"]){
+            features = this[lyr["options"]["dataVar"]].features.slice(0);
+            try{
+              for (key in Filters){
+                keyS = key.replace(/[^a-zA-Z0-9_]/g, "")
+                if (Filters[key] == "str" || Filters[key] == "bool"){
+                  var selection = [];
+                  var options = document.getElementById("sel_" + keyS).options
+                  for (var i=0; i < options.length; i++) {
+                    if (options[i].selected) selection.push(options[i].value);
+                  }
+                    try{
+                      if (key in features[0].properties){
+                        for (i = features.length - 1;
+                          i >= 0; --i){
+                          if (selection.indexOf(
+                          features[i].properties[key])<0
+                          && selection.length>0) {
+                          features.splice(i,1);
+                          }
+                        }
+                      }
+                    } catch(err){
+                  }
+                }
+                if (Filters[key] == "int"){
+                  sliderVals =  document.getElementById(
+                    "div_" + keyS).noUiSlider.get();
+                  try{
+                    if (key in features[0].properties){
+                    for (i = features.length - 1; i >= 0; --i){
+                      if (parseInt(features[i].properties[key])
+                          < sliderVals[0]
+                          || parseInt(features[i].properties[key])
+                          > sliderVals[1]){
+                            features.splice(i,1);
+                          }
+                        }
+                      }
+                    } catch(err){
+                    }
+                  }
+                if (Filters[key] == "real"){
+                  sliderVals =  document.getElementById(
+                    "div_" + keyS).noUiSlider.get();
+                  try{
+                    if (key in features[0].properties){
+                    for (i = features.length - 1; i >= 0; --i){
+                      if (features[i].properties[key]
+                          < sliderVals[0]
+                          || features[i].properties[key]
+                          > sliderVals[1]){
+                            features.splice(i,1);
+                          }
+                        }
+                      }
+                    } catch(err){
+                    }
+                  }
+                if (Filters[key] == "date"
+                  || Filters[key] == "datetime"
+                  || Filters[key] == "time"){
+                  try{
+                    if (key in features[0].properties){
+                      HTMLkey = key.replace(/[&\/\\#,+()$~%.'":*?<>{} ]/g, '');
+                      startdate = document.getElementById("dat_" +
+                        HTMLkey + "_date1").value.replace(" ", "T");
+                      enddate = document.getElementById("dat_" +
+                        HTMLkey + "_date2").value.replace(" ", "T");
+                      for (i = features.length - 1; i >= 0; --i){
+                        if (features[i].properties[key] < startdate
+                          || features[i].properties[key] > enddate){
+                          features.splice(i,1);
+                        }
+                      }
+                    }
+                  } catch(err){
+                  }
+                }
+              }
+            } catch(err){
+            }
+          this[lyr["options"]["layerName"]].clearLayers();
+          this[lyr["options"]["layerName"]].addData(features);
+          }
+          })
+        }
+            document.getElementById("menu").appendChild(
+                document.createElement("div"));
+            var div_NAME = document.createElement('div');
+            div_NAME.id = "div_NAME";
+            div_NAME.className= "filterselect";
+            document.getElementById("menu").appendChild(div_NAME);
+            sel_NAME = document.createElement('select');
+            sel_NAME.multiple = true;
+            sel_NAME.size = 10;
+            sel_NAME.id = "sel_NAME";
+            var NAME_options_str = "<option value='' unselected></option>";
+            sel_NAME.onchange = function(){filterFunc()};
+            NAME_options_str  += '<option value="Amani">Amani</option>';
+            NAME_options_str  += '<option value="Arusha National Park">Arusha National Park</option>';
+            NAME_options_str  += '<option value="Baga I (Mzinga)">Baga I (Mzinga)</option>';
+            NAME_options_str  += '<option value="Bagai">Bagai</option>';
+            NAME_options_str  += '<option value="Balangai West">Balangai West</option>';
+            NAME_options_str  += '<option value="Bamba Ridge">Bamba Ridge</option>';
+            NAME_options_str  += '<option value="Bassi">Bassi</option>';
+            NAME_options_str  += '<option value="Bereku">Bereku</option>';
+            NAME_options_str  += '<option value="Biharamulo">Biharamulo</option>';
+            NAME_options_str  += '<option value="Bombo East I">Bombo East I</option>';
+            NAME_options_str  += '<option value="Bombo East II">Bombo East II</option>';
+            NAME_options_str  += '<option value="Bombo Makole">Bombo Makole</option>';
+            NAME_options_str  += '<option value="Bombo West">Bombo West</option>';
+            NAME_options_str  += '<option value="Bondo">Bondo</option>';
+            NAME_options_str  += '<option value="Buhindi">Buhindi</option>';
+            NAME_options_str  += '<option value="Bujingwa">Bujingwa</option>';
+            NAME_options_str  += '<option value="Bulongwa Madehani">Bulongwa Madehani</option>';
+            NAME_options_str  += '<option value="Bunduki 3">Bunduki 3</option>';
+            NAME_options_str  += '<option value="Burko">Burko</option>';
+            NAME_options_str  += '<option value="Burko O.A.">Burko O.A.</option>';
+            NAME_options_str  += '<option value="Burunge WMA">Burunge WMA</option>';
+            NAME_options_str  += '<option value="Buyange">Buyange</option>';
+            NAME_options_str  += '<option value="Buyonga">Buyonga</option>';
+            NAME_options_str  += '<option value="Bwiregi">Bwiregi</option>';
+            NAME_options_str  += '<option value="Chala Hills">Chala Hills</option>';
+            NAME_options_str  += '<option value="Chamanyani">Chamanyani</option>';
+            NAME_options_str  += '<option value="Chambogo">Chambogo</option>';
+            NAME_options_str  += '<option value="Changandu">Changandu</option>';
+            NAME_options_str  += '<option value="Chaya O.A.">Chaya O.A.</option>';
+            NAME_options_str  += '<option value="Chemi chemi">Chemi chemi</option>';
+            NAME_options_str  += '<option value="Chenene East">Chenene East</option>';
+            NAME_options_str  += '<option value="Chilangala">Chilangala</option>';
+            NAME_options_str  += '<option value="Chimala Scarp">Chimala Scarp</option>';
+            NAME_options_str  += '<option value="Chinene West">Chinene West</option>';
+            NAME_options_str  += '<option value="Chitoa">Chitoa</option>';
+            NAME_options_str  += '<option value="Chome">Chome</option>';
+            NAME_options_str  += '<option value="Chongweni">Chongweni</option>';
+            NAME_options_str  += '<option value="Chumbe Island Coral Park">Chumbe Island Coral Park</option>';
+            NAME_options_str  += '<option value="Chumwa Range">Chumwa Range</option>';
+            NAME_options_str  += '<option value="Chunya Lukawati O.A.">Chunya Lukawati O.A.</option>';
+            NAME_options_str  += '<option value="Chunya O.A (E)">Chunya O.A (E)</option>';
+            NAME_options_str  += '<option value="Chuvwi">Chuvwi</option>';
+            NAME_options_str  += '<option value="Dabaga New">Dabaga New</option>';
+            NAME_options_str  += '<option value="Dar es Salaam">Dar es Salaam</option>';
+            NAME_options_str  += '<option value="Derema">Derema</option>';
+            NAME_options_str  += '<option value="Dindili">Dindili</option>';
+            NAME_options_str  += '<option value="Disalasala">Disalasala</option>';
+            NAME_options_str  += '<option value="Dodoma Reservoir">Dodoma Reservoir</option>';
+            NAME_options_str  += '<option value="Enduimet WMA">Enduimet WMA</option>';
+            NAME_options_str  += '<option value="Essimingor">Essimingor</option>';
+            NAME_options_str  += '<option value="Fonera">Fonera</option>';
+            NAME_options_str  += '<option value="Forest Reserve Name Unknown (TZA) (Mangrove) No.18">Forest Reserve Name Unknown (TZA) (Mangrove) No.18</option>';
+            NAME_options_str  += '<option value="Forest Reserve Name Unknown No. 2">Forest Reserve Name Unknown No. 2</option>';
+            NAME_options_str  += '<option value="Garafuno">Garafuno</option>';
+            NAME_options_str  += '<option value="Geita">Geita</option>';
+            NAME_options_str  += '<option value="Gelai">Gelai</option>';
+            NAME_options_str  += '<option value="Gombe GCA">Gombe GCA</option>';
+            NAME_options_str  += '<option value="Gombe National Park">Gombe National Park</option>';
+            NAME_options_str  += '<option value="Gonja">Gonja</option>';
+            NAME_options_str  += '<option value="Goweko">Goweko</option>';
+            NAME_options_str  += '<option value="Grumeti G.R.">Grumeti G.R.</option>';
+            NAME_options_str  += '<option value="Gulosilo">Gulosilo</option>';
+            NAME_options_str  += '<option value="Gumbiro">Gumbiro</option>';
+            NAME_options_str  += '<option value="Gwami">Gwami</option>';
+            NAME_options_str  += '<option value="Hanang">Hanang</option>';
+            NAME_options_str  += '<option value="Handeni GCA">Handeni GCA</option>';
+            NAME_options_str  += '<option value="Handeni Hill">Handeni Hill</option>';
+            NAME_options_str  += '<option value="Haraa">Haraa</option>';
+            NAME_options_str  += '<option value="Hassama Hill">Hassama Hill</option>';
+            NAME_options_str  += '<option value="Hebangwe">Hebangwe</option>';
+            NAME_options_str  += '<option value="Hupanga">Hupanga</option>';
+            NAME_options_str  += '<option value="Ibondo">Ibondo</option>';
+            NAME_options_str  += '<option value="Idamba">Idamba</option>';
+            NAME_options_str  += '<option value="Idewa">Idewa</option>';
+            NAME_options_str  += '<option value="Iditima">Iditima</option>';
+            NAME_options_str  += '<option value="Idunda">Idunda</option>';
+            NAME_options_str  += '<option value="Igoma Logala">Igoma Logala</option>';
+            NAME_options_str  += '<option value="Igombe Dam">Igombe Dam</option>';
+            NAME_options_str  += '<option value="Igombe River">Igombe River</option>';
+            NAME_options_str  += '<option value="Igwata">Igwata</option>';
+            NAME_options_str  += '<option value="Ihanga">Ihanga</option>';
+            NAME_options_str  += '<option value="Ihoho">Ihoho</option>';
+            NAME_options_str  += '<option value="Ijogo">Ijogo</option>';
+            NAME_options_str  += '<option value="Ikona WMA">Ikona WMA</option>';
+            NAME_options_str  += '<option value="Ikonde">Ikonde</option>';
+            NAME_options_str  += '<option value="Ikorongo G.R.">Ikorongo G.R.</option>';
+            NAME_options_str  += '<option value="Ikuru">Ikuru</option>';
+            NAME_options_str  += '<option value="Ikwamba">Ikwamba</option>';
+            NAME_options_str  += '<option value="Ilamba">Ilamba</option>';
+            NAME_options_str  += '<option value="Ilomero Hill">Ilomero Hill</option>';
+            NAME_options_str  += '<option value="Ilongafipa">Ilongafipa</option>';
+            NAME_options_str  += '<option value="Ilonganjaula">Ilonganjaula</option>';
+            NAME_options_str  += '<option value="Ilunde">Ilunde</option>';
+            NAME_options_str  += '<option value="Image">Image</option>';
+            NAME_options_str  += '<option value="Inyonga GCA">Inyonga GCA</option>';
+            NAME_options_str  += '<option value="Ipole WMA">Ipole WMA</option>';
+            NAME_options_str  += '<option value="Irangi Escarpment">Irangi Escarpment</option>';
+            NAME_options_str  += '<option value="Irenga">Irenga</option>';
+            NAME_options_str  += '<option value="Iringa">Iringa</option>';
+            NAME_options_str  += '<option value="Irkishbor O.A.">Irkishbor O.A.</option>';
+            NAME_options_str  += '<option value="Irunda">Irunda</option>';
+            NAME_options_str  += '<option value="Irunga">Irunga</option>';
+            NAME_options_str  += '<option value="Irungu">Irungu</option>';
+            NAME_options_str  += '<option value="Isabe">Isabe</option>';
+            NAME_options_str  += '<option value="Isalala">Isalala</option>';
+            NAME_options_str  += '<option value="Isililo">Isililo</option>';
+            NAME_options_str  += '<option value="Ito">Ito</option>';
+            NAME_options_str  += '<option value="Itobo Dam">Itobo Dam</option>';
+            NAME_options_str  += '<option value="Itulu Hill">Itulu Hill</option>';
+            NAME_options_str  += '<option value="Ituru Forest O.A.">Ituru Forest O.A.</option>';
+            NAME_options_str  += '<option value="Ivuna North">Ivuna North</option>';
+            NAME_options_str  += '<option value="Ivuna South">Ivuna South</option>';
+            NAME_options_str  += '<option value="Iyonda">Iyonda</option>';
+            NAME_options_str  += '<option value="Jasini">Jasini</option>';
+            NAME_options_str  += '<option value="Kabingo">Kabingo</option>';
+            NAME_options_str  += '<option value="Kabungu">Kabungu</option>';
+            NAME_options_str  += '<option value="Kagongho">Kagongho</option>';
+            NAME_options_str  += '<option value="Kahama dam">Kahama dam</option>';
+            NAME_options_str  += '<option value="Kahe I">Kahe I</option>';
+            NAME_options_str  += '<option value="Kahe II">Kahe II</option>';
+            NAME_options_str  += '<option value="Kakora">Kakora</option>';
+            NAME_options_str  += '<option value="Kalambo River">Kalambo River</option>';
+            NAME_options_str  += '<option value="Kalambo falls">Kalambo falls</option>';
+            NAME_options_str  += '<option value="Kalangai">Kalangai</option>';
+            NAME_options_str  += '<option value="Kambai">Kambai</option>';
+            NAME_options_str  += '<option value="Kambona">Kambona</option>';
+            NAME_options_str  += '<option value="Kamwalla I">Kamwalla I</option>';
+            NAME_options_str  += '<option value="Kamwalla II">Kamwalla II</option>';
+            NAME_options_str  += '<option value="Kanga">Kanga</option>';
+            NAME_options_str  += '<option value="Kankoma">Kankoma</option>';
+            NAME_options_str  += '<option value="Kantale">Kantale</option>';
+            NAME_options_str  += '<option value="Karitu">Karitu</option>';
+            NAME_options_str  += '<option value="Kasanga">Kasanga</option>';
+            NAME_options_str  += '<option value="Katavi National Park">Katavi National Park</option>';
+            NAME_options_str  += '<option value="Katundu">Katundu</option>';
+            NAME_options_str  += '<option value="Kawetire">Kawetire</option>';
+            NAME_options_str  += '<option value="Kawetire Ipinda range">Kawetire Ipinda range</option>';
+            NAME_options_str  += '<option value="Kawetire Karuwe range">Kawetire Karuwe range</option>';
+            NAME_options_str  += '<option value="Kawetire Mbeya peak range">Kawetire Mbeya peak range</option>';
+            NAME_options_str  += '<option value="Kazimzumbwi">Kazimzumbwi</option>';
+            NAME_options_str  += '<option value="Kiamawe">Kiamawe</option>';
+            NAME_options_str  += '<option value="Kiav Island">Kiav Island</option>';
+            NAME_options_str  += '<option value="Kibao">Kibao</option>';
+            NAME_options_str  += '<option value="Kibwezi">Kibwezi</option>';
+            NAME_options_str  += '<option value="Kichi Hills">Kichi Hills</option>';
+            NAME_options_str  += '<option value="Kigogo">Kigogo</option>';
+            NAME_options_str  += '<option value="Kigongkwe">Kigongkwe</option>';
+            NAME_options_str  += '<option value="Kihanga">Kihanga</option>';
+            NAME_options_str  += '<option value="Kihiriri">Kihiriri</option>';
+            NAME_options_str  += '<option value="Kikale">Kikale</option>';
+            NAME_options_str  += '<option value="Kikoka">Kikoka</option>';
+            NAME_options_str  += '<option value="Kikongoloi">Kikongoloi</option>';
+            NAME_options_str  += '<option value="Kikongoro">Kikongoro</option>';
+            NAME_options_str  += '<option value="Kikuru">Kikuru</option>';
+            NAME_options_str  += '<option value="Kilanga (Nilo)">Kilanga (Nilo)</option>';
+            NAME_options_str  += '<option value="Kilengwe">Kilengwe</option>';
+            NAME_options_str  += '<option value="Kileo East">Kileo East</option>';
+            NAME_options_str  += '<option value="Kilimanjaro National Park">Kilimanjaro National Park</option>';
+            NAME_options_str  += '<option value="Kilindi">Kilindi</option>';
+            NAME_options_str  += '<option value="Kilombero">Kilombero</option>';
+            NAME_options_str  += '<option value="Kilombero GCA">Kilombero GCA</option>';
+            NAME_options_str  += '<option value="Kilombero Valley Floodplain">Kilombero Valley Floodplain</option>';
+            NAME_options_str  += '<option value="Kilwa O.A.">Kilwa O.A.</option>';
+            NAME_options_str  += '<option value="Kimboza">Kimboza</option>';
+            NAME_options_str  += '<option value="Kindoroko">Kindoroko</option>';
+            NAME_options_str  += '<option value="Kingoma">Kingoma</option>';
+            NAME_options_str  += '<option value="Kingongoro">Kingongoro</option>';
+            NAME_options_str  += '<option value="Kinyerezi">Kinyerezi</option>';
+            NAME_options_str  += '<option value="Kipembawe">Kipembawe</option>';
+            NAME_options_str  += '<option value="Kipengere Range">Kipengere Range</option>';
+            NAME_options_str  += '<option value="Kipo">Kipo</option>';
+            NAME_options_str  += '<option value="Kiranga Hengae">Kiranga Hengae</option>';
+            NAME_options_str  += '<option value="Kiranzi Kitunguu">Kiranzi Kitunguu</option>';
+            NAME_options_str  += '<option value="Kiriguru">Kiriguru</option>';
+            NAME_options_str  += '<option value="Kisima Gonja">Kisima Gonja</option>';
+            NAME_options_str  += '<option value="Kisinga Lugaro">Kisinga Lugaro</option>';
+            NAME_options_str  += '<option value="Kisiwani">Kisiwani</option>';
+            NAME_options_str  += '<option value="Kitapilimwa">Kitapilimwa</option>';
+            NAME_options_str  += '<option value="Kitara Ridge">Kitara Ridge</option>';
+            NAME_options_str  += '<option value="Kitivo North">Kitivo North</option>';
+            NAME_options_str  += '<option value="Kitivo South">Kitivo South</option>';
+            NAME_options_str  += '<option value="Kitonbeine">Kitonbeine</option>';
+            NAME_options_str  += '<option value="Kitope Hill">Kitope Hill</option>';
+            NAME_options_str  += '<option value="Kitulanghalo">Kitulanghalo</option>';
+            NAME_options_str  += '<option value="Kitulio">Kitulio</option>';
+            NAME_options_str  += '<option value="Kitulo Plateau National Park">Kitulo Plateau National Park</option>';
+            NAME_options_str  += '<option value="Kitwai GCA">Kitwai GCA</option>';
+            NAME_options_str  += '<option value="Kitweli">Kitweli</option>';
+            NAME_options_str  += '<option value="Kiutu">Kiutu</option>';
+            NAME_options_str  += '<option value="Kiverenge">Kiverenge</option>';
+            NAME_options_str  += '<option value="Kiwengoma">Kiwengoma</option>';
+            NAME_options_str  += '<option value="Kiwengwa Pongwe">Kiwengwa Pongwe</option>';
+            NAME_options_str  += '<option value="Kiwira">Kiwira</option>';
+            NAME_options_str  += '<option value="Kizigo G.R. (C)">Kizigo G.R. (C)</option>';
+            NAME_options_str  += '<option value="Koko Hill">Koko Hill</option>';
+            NAME_options_str  += '<option value="Kome">Kome</option>';
+            NAME_options_str  += '<option value="Kome Island">Kome Island</option>';
+            NAME_options_str  += '<option value="Konga">Konga</option>';
+            NAME_options_str  += '<option value="Korogwe Fuel">Korogwe Fuel</option>';
+            NAME_options_str  += '<option value="Kungwe Bay">Kungwe Bay</option>';
+            NAME_options_str  += '<option value="Kurwirwi">Kurwirwi</option>';
+            NAME_options_str  += '<option value="Kwamarukanga">Kwamarukanga</option>';
+            NAME_options_str  += '<option value="Kwamgumi">Kwamgumi</option>';
+            NAME_options_str  += '<option value="Kwamrimba">Kwamrimba</option>';
+            NAME_options_str  += '<option value="Kwangola">Kwangola</option>';
+            NAME_options_str  += '<option value="Kwani">Kwani</option>';
+            NAME_options_str  += '<option value="Kwasumba">Kwasumba</option>';
+            NAME_options_str  += '<option value="Kwekanda">Kwekanda</option>';
+            NAME_options_str  += '<option value="Kwembago">Kwembago</option>';
+            NAME_options_str  += '<option value="Kwizu">Kwizu</option>';
+            NAME_options_str  += '<option value="Kyanyari">Kyanyari</option>';
+            NAME_options_str  += '<option value="Kyarano">Kyarano</option>';
+            NAME_options_str  += '<option value="Kyejo">Kyejo</option>';
+            NAME_options_str  += '<option value="Kyosa">Kyosa</option>';
+            NAME_options_str  += '<option value="Lake Duluti">Lake Duluti</option>';
+            NAME_options_str  += '<option value="Lake Manyara National Park">Lake Manyara National Park</option>';
+            NAME_options_str  += '<option value="Lake Natron Basin">Lake Natron Basin</option>';
+            NAME_options_str  += '<option value="Lake Natron GCA">Lake Natron GCA</option>';
+            NAME_options_str  += '<option value="Lake Rukwa G.R">Lake Rukwa G.R</option>';
+            NAME_options_str  += '<option value="Landanai GCA">Landanai GCA</option>';
+            NAME_options_str  += '<option value="Ligamba">Ligamba</option>';
+            NAME_options_str  += '<option value="Lionja">Lionja</option>';
+            NAME_options_str  += '<option value="Liparamba G.R">Liparamba G.R</option>';
+            NAME_options_str  += '<option value="Liteho">Liteho</option>';
+            NAME_options_str  += '<option value="Litipo">Litipo</option>';
+            NAME_options_str  += '<option value="Litoni">Litoni</option>';
+            NAME_options_str  += '<option value="Litumbandyosi O.A./Gezamasua F.R.">Litumbandyosi O.A./Gezamasua F.R.</option>';
+            NAME_options_str  += '<option value="Livingstone">Livingstone</option>';
+            NAME_options_str  += '<option value="Liwale WMA">Liwale WMA</option>';
+            NAME_options_str  += '<option value="Liwili/Kiteza/Lwekea">Liwili/Kiteza/Lwekea</option>';
+            NAME_options_str  += '<option value="Loasi river">Loasi river</option>';
+            NAME_options_str  += '<option value="Lohombero/Luwengu">Lohombero/Luwengu</option>';
+            NAME_options_str  += '<option value="Loliondo GCA">Loliondo GCA</option>';
+            NAME_options_str  += '<option value="Loliondo I">Loliondo I</option>';
+            NAME_options_str  += '<option value="Loliondo II">Loliondo II</option>';
+            NAME_options_str  += '<option value="Lolkisale GCA">Lolkisale GCA</option>';
+            NAME_options_str  += '<option value="Long&apos;isont">Long&apos;isont</option>';
+            NAME_options_str  += '<option value="Longido">Longido</option>';
+            NAME_options_str  += '<option value="Longuza">Longuza</option>';
+            NAME_options_str  += '<option value="Longuza Kolekole Range">Longuza Kolekole Range</option>';
+            NAME_options_str  += '<option value="Longuza_Kihuhwi Range">Longuza_Kihuhwi Range</option>';
+            NAME_options_str  += '<option value="Lubaga">Lubaga</option>';
+            NAME_options_str  += '<option value="Lugufu">Lugufu</option>';
+            NAME_options_str  += '<option value="Luiche">Luiche</option>';
+            NAME_options_str  += '<option value="Lukoka Hill">Lukoka Hill</option>';
+            NAME_options_str  += '<option value="Lukwati">Lukwati</option>';
+            NAME_options_str  += '<option value="Lukwika-Lumesule G.R.">Lukwika-Lumesule G.R.</option>';
+            NAME_options_str  += '<option value="Lunda Nkwambi GCA">Lunda Nkwambi GCA</option>';
+            NAME_options_str  += '<option value="Lungonya">Lungonya</option>';
+            NAME_options_str  += '<option value="Lupa North">Lupa North</option>';
+            NAME_options_str  += '<option value="Lushoto">Lushoto</option>';
+            NAME_options_str  += '<option value="Lusungulu">Lusungulu</option>';
+            NAME_options_str  += '<option value="Lwafi-Nkamba G.R.">Lwafi-Nkamba G.R.</option>';
+            NAME_options_str  += '<option value="Lwenza">Lwenza</option>';
+            NAME_options_str  += '<option value="Lyambo Hill">Lyambo Hill</option>';
+            NAME_options_str  += '<option value="Maasi">Maasi</option>';
+            NAME_options_str  += '<option value="Mabundi Mtwange">Mabundi Mtwange</option>';
+            NAME_options_str  += '<option value="Madenge">Madenge</option>';
+            NAME_options_str  += '<option value="Mafi Hill">Mafi Hill</option>';
+            NAME_options_str  += '<option value="Mafia Island">Mafia Island</option>';
+            NAME_options_str  += '<option value="Mafifi">Mafifi</option>';
+            NAME_options_str  += '<option value="Mafleta">Mafleta</option>';
+            NAME_options_str  += '<option value="Mafwomero">Mafwomero</option>';
+            NAME_options_str  += '<option value="Magambazi">Magambazi</option>';
+            NAME_options_str  += '<option value="Maganda">Maganda</option>';
+            NAME_options_str  += '<option value="Magombera">Magombera</option>';
+            NAME_options_str  += '<option value="Magoroto">Magoroto</option>';
+            NAME_options_str  += '<option value="Magroove">Magroove</option>';
+            NAME_options_str  += '<option value="Magwamila O.A.">Magwamila O.A.</option>';
+            NAME_options_str  += '<option value="Mahale Mts.National Park">Mahale Mts.National Park</option>';
+            NAME_options_str  += '<option value="Mahenge O.A.">Mahenge O.A.</option>';
+            NAME_options_str  += '<option value="Mahenge Scarp">Mahenge Scarp</option>';
+            NAME_options_str  += '<option value="Mahezangulu">Mahezangulu</option>';
+            NAME_options_str  += '<option value="Mahuta">Mahuta</option>';
+            NAME_options_str  += '<option value="Maisome">Maisome</option>';
+            NAME_options_str  += '<option value="Makame WMA">Makame WMA</option>';
+            NAME_options_str  += '<option value="Makere  South">Makere  South</option>';
+            NAME_options_str  += '<option value="Makonde Scarp I">Makonde Scarp I</option>';
+            NAME_options_str  += '<option value="Makonde Scarp II">Makonde Scarp II</option>';
+            NAME_options_str  += '<option value="Makonde Scarp III">Makonde Scarp III</option>';
+            NAME_options_str  += '<option value="Malagarasi-Muyovozi Wetlands">Malagarasi-Muyovozi Wetlands</option>';
+            NAME_options_str  += '<option value="Malehi">Malehi</option>';
+            NAME_options_str  += '<option value="Malenga">Malenga</option>';
+            NAME_options_str  += '<option value="Malya stock farm">Malya stock farm</option>';
+            NAME_options_str  += '<option value="Mamani">Mamani</option>';
+            NAME_options_str  += '<option value="Mamboto">Mamboto</option>';
+            NAME_options_str  += '<option value="Mamboya">Mamboya</option>';
+            NAME_options_str  += '<option value="Mamiwa Kisara South">Mamiwa Kisara South</option>';
+            NAME_options_str  += '<option value="Manga">Manga</option>';
+            NAME_options_str  += '<option value="Mangala">Mangala</option>';
+            NAME_options_str  += '<option value="Mangalisa">Mangalisa</option>';
+            NAME_options_str  += '<option value="Mangove">Mangove</option>';
+            NAME_options_str  += '<option value="Mangroove">Mangroove</option>';
+            NAME_options_str  += '<option value="Mangrove">Mangrove</option>';
+            NAME_options_str  += '<option value="Mangroves (Mikindani)">Mangroves (Mikindani)</option>';
+            NAME_options_str  += '<option value="Mangroves along Mbezi">Mangroves along Mbezi</option>';
+            NAME_options_str  += '<option value="Mangroves-Bagamoyo">Mangroves-Bagamoyo</option>';
+            NAME_options_str  += '<option value="Mangroves-Kilwa">Mangroves-Kilwa</option>';
+            NAME_options_str  += '<option value="Mangroves-Kisarawe">Mangroves-Kisarawe</option>';
+            NAME_options_str  += '<option value="Manka">Manka</option>';
+            NAME_options_str  += '<option value="Manongho Hill">Manongho Hill</option>';
+            NAME_options_str  += '<option value="Maposeni">Maposeni</option>';
+            NAME_options_str  += '<option value="Marenda">Marenda</option>';
+            NAME_options_str  += '<option value="Masagati">Masagati</option>';
+            NAME_options_str  += '<option value="Masai O.A.">Masai O.A.</option>';
+            NAME_options_str  += '<option value="Masanganya">Masanganya</option>';
+            NAME_options_str  += '<option value="Masingini Catchment Forest">Masingini Catchment Forest</option>';
+            NAME_options_str  += '<option value="Masukulu">Masukulu</option>';
+            NAME_options_str  += '<option value="Maswa G.R. (N)">Maswa G.R. (N)</option>';
+            NAME_options_str  += '<option value="Maswa Kimali">Maswa Kimali</option>';
+            NAME_options_str  += '<option value="Matapwa">Matapwa</option>';
+            NAME_options_str  += '<option value="Matembwe">Matembwe</option>';
+            NAME_options_str  += '<option value="Matogoro East">Matogoro East</option>';
+            NAME_options_str  += '<option value="Matogoro West">Matogoro West</option>';
+            NAME_options_str  += '<option value="Mayefiya">Mayefiya</option>';
+            NAME_options_str  += '<option value="Maziwe Island">Maziwe Island</option>';
+            NAME_options_str  += '<option value="Mbagala">Mbagala</option>';
+            NAME_options_str  += '<option value="Mbarang&apos;andu WMA">Mbarang&apos;andu WMA</option>';
+            NAME_options_str  += '<option value="Mbeya Range">Mbeya Range</option>';
+            NAME_options_str  += '<option value="Mbeya fuel">Mbeya fuel</option>';
+            NAME_options_str  += '<option value="Mbinga Kimaji / Kimate">Mbinga Kimaji / Kimate</option>';
+            NAME_options_str  += '<option value="Mbogo">Mbogo</option>';
+            NAME_options_str  += '<option value="Mbogwe Bukombe">Mbogwe Bukombe</option>';
+            NAME_options_str  += '<option value="Mbuga ya Goima">Mbuga ya Goima</option>';
+            NAME_options_str  += '<option value="Mbwegere">Mbwegere</option>';
+            NAME_options_str  += '<option value="Mchungu">Mchungu</option>';
+            NAME_options_str  += '<option value="Mdando">Mdando</option>';
+            NAME_options_str  += '<option value="Meru">Meru</option>';
+            NAME_options_str  += '<option value="Meru Kilinga Range">Meru Kilinga Range</option>';
+            NAME_options_str  += '<option value="Meru Sakila Range">Meru Sakila Range</option>';
+            NAME_options_str  += '<option value="Mfulikilo">Mfulikilo</option>';
+            NAME_options_str  += '<option value="Mfumbia">Mfumbia</option>';
+            NAME_options_str  += '<option value="Mgambo">Mgambo</option>';
+            NAME_options_str  += '<option value="Mgololo">Mgololo</option>';
+            NAME_options_str  += '<option value="Mhalo">Mhalo</option>';
+            NAME_options_str  += '<option value="Mhulu">Mhulu</option>';
+            NAME_options_str  += '<option value="Mienze">Mienze</option>';
+            NAME_options_str  += '<option value="Mikumi National Park">Mikumi National Park</option>';
+            NAME_options_str  += '<option value="Milawilila">Milawilila</option>';
+            NAME_options_str  += '<option value="Milindo">Milindo</option>';
+            NAME_options_str  += '<option value="Mindu">Mindu</option>';
+            NAME_options_str  += '<option value="Minja">Minja</option>';
+            NAME_options_str  += '<option value="Mitundumbea">Mitundumbea</option>';
+            NAME_options_str  += '<option value="Mkangala">Mkangala</option>';
+            NAME_options_str  += '<option value="Mkewe">Mkewe</option>';
+            NAME_options_str  += '<option value="Mkigagi">Mkigagi</option>';
+            NAME_options_str  += '<option value="Mkomazi National Park">Mkomazi National Park</option>';
+            NAME_options_str  += '<option value="Mkongo">Mkongo</option>';
+            NAME_options_str  += '<option value="Mkoro">Mkoro</option>';
+            NAME_options_str  += '<option value="Mkulazi">Mkulazi</option>';
+            NAME_options_str  += '<option value="Mkuli Exten.">Mkuli Exten.</option>';
+            NAME_options_str  += '<option value="Mkundi">Mkundi</option>';
+            NAME_options_str  += '<option value="Mkungwe">Mkungwe</option>';
+            NAME_options_str  += '<option value="Mkusu">Mkusu</option>';
+            NAME_options_str  += '<option value="Mkuti">Mkuti</option>';
+            NAME_options_str  += '<option value="Mkweni Hill">Mkweni Hill</option>';
+            NAME_options_str  += '<option value="Mlali">Mlali</option>';
+            NAME_options_str  += '<option value="Mlele G.C.A.(S)">Mlele G.C.A.(S)</option>';
+            NAME_options_str  += '<option value="Mlele GCA">Mlele GCA</option>';
+            NAME_options_str  += '<option value="Mlinga">Mlinga</option>';
+            NAME_options_str  += '<option value="Mlola">Mlola</option>';
+            NAME_options_str  += '<option value="Mlungui">Mlungui</option>';
+            NAME_options_str  += '<option value="Mnazi Bay-Ruvuma Estuary">Mnazi Bay-Ruvuma Estuary</option>';
+            NAME_options_str  += '<option value="Mninga">Mninga</option>';
+            NAME_options_str  += '<option value="Mohoro">Mohoro</option>';
+            NAME_options_str  += '<option value="Mohoro River">Mohoro River</option>';
+            NAME_options_str  += '<option value="Mombo">Mombo</option>';
+            NAME_options_str  += '<option value="Monduli">Monduli</option>';
+            NAME_options_str  += '<option value="Monduli Juu O.A.">Monduli Juu O.A.</option>';
+            NAME_options_str  += '<option value="Morogoro Fuel">Morogoro Fuel</option>';
+            NAME_options_str  += '<option value="Moyowosi G.R (N)">Moyowosi G.R (N)</option>';
+            NAME_options_str  += '<option value="Mpagalalu">Mpagalalu</option>';
+            NAME_options_str  += '<option value="Mpala">Mpala</option>';
+            NAME_options_str  += '<option value="Mpanda Line">Mpanda Line</option>';
+            NAME_options_str  += '<option value="Mpanda North East">Mpanda North East</option>';
+            NAME_options_str  += '<option value="Mpara">Mpara</option>';
+            NAME_options_str  += '<option value="Mpembampazi">Mpembampazi</option>';
+            NAME_options_str  += '<option value="Mpunze">Mpunze</option>';
+            NAME_options_str  += '<option value="Mramba">Mramba</option>';
+            NAME_options_str  += '<option value="Mrema Kingarussina">Mrema Kingarussina</option>';
+            NAME_options_str  += '<option value="Msanjesi GR/Kipitimbi/Lionja FR">Msanjesi GR/Kipitimbi/Lionja FR</option>';
+            NAME_options_str  += '<option value="Mselezi">Mselezi</option>';
+            NAME_options_str  += '<option value="Msima GCA">Msima GCA</option>';
+            NAME_options_str  += '<option value="Msingeho Hill">Msingeho Hill</option>';
+            NAME_options_str  += '<option value="Msuluguda O.A">Msuluguda O.A</option>';
+            NAME_options_str  += '<option value="Msumbugwe">Msumbugwe</option>';
+            NAME_options_str  += '<option value="Mswima">Mswima</option>';
+            NAME_options_str  += '<option value="Mtai">Mtai</option>';
+            NAME_options_str  += '<option value="Mtama">Mtama</option>';
+            NAME_options_str  += '<option value="Mtandi">Mtandi</option>';
+            NAME_options_str  += '<option value="Mtanza">Mtanza</option>';
+            NAME_options_str  += '<option value="Mtarure">Mtarure</option>';
+            NAME_options_str  += '<option value="Mtibwa">Mtibwa</option>';
+            NAME_options_str  += '<option value="Mtita">Mtita</option>';
+            NAME_options_str  += '<option value="Mto wa Mbu GCA">Mto wa Mbu GCA</option>';
+            NAME_options_str  += '<option value="Mtumbi">Mtumbi</option>';
+            NAME_options_str  += '<option value="Mtunguru">Mtunguru</option>';
+            NAME_options_str  += '<option value="Mtungwe O.A. (C)">Mtungwe O.A. (C)</option>';
+            NAME_options_str  += '<option value="Mufindi Scarp">Mufindi Scarp</option>';
+            NAME_options_str  += '<option value="Mufindi Tea Estate Land">Mufindi Tea Estate Land</option>';
+            NAME_options_str  += '<option value="Mugaberi">Mugaberi</option>';
+            NAME_options_str  += '<option value="Muhesi G.R (W)">Muhesi G.R (W)</option>';
+            NAME_options_str  += '<option value="Muhuwesi">Muhuwesi</option>';
+            NAME_options_str  += '<option value="Muhuwesi GCA">Muhuwesi GCA</option>';
+            NAME_options_str  += '<option value="Muipa">Muipa</option>';
+            NAME_options_str  += '<option value="Mulele Hills">Mulele Hills</option>';
+            NAME_options_str  += '<option value="Munene">Munene</option>';
+            NAME_options_str  += '<option value="Musiora">Musiora</option>';
+            NAME_options_str  += '<option value="Muva/Sumbawanga Plantation">Muva/Sumbawanga Plantation</option>';
+            NAME_options_str  += '<option value="Mvuha">Mvuha</option>';
+            NAME_options_str  += '<option value="Mwakulu">Mwakulu</option>';
+            NAME_options_str  += '<option value="Mwaluguru">Mwaluguru</option>';
+            NAME_options_str  += '<option value="Mwamakalemu">Mwamakalemu</option>';
+            NAME_options_str  += '<option value="Mwamapalala">Mwamapalala</option>';
+            NAME_options_str  += '<option value="Mwamapuli">Mwamapuli</option>';
+            NAME_options_str  += '<option value="Mwamayombo">Mwamayombo</option>';
+            NAME_options_str  += '<option value="Mwambesi">Mwambesi</option>';
+            NAME_options_str  += '<option value="Mwambesi GCA">Mwambesi GCA</option>';
+            NAME_options_str  += '<option value="Mwangilye">Mwangilye</option>';
+            NAME_options_str  += '<option value="Mwanhala">Mwanhala</option>';
+            NAME_options_str  += '<option value="Mwantini Hill">Mwantini Hill</option>';
+            NAME_options_str  += '<option value="Mwantisi O.A (S)">Mwantisi O.A (S)</option>';
+            NAME_options_str  += '<option value="Mwantisi O.A. (N) and Furua">Mwantisi O.A. (N) and Furua</option>';
+            NAME_options_str  += '<option value="Mwanzogisengi">Mwanzogisengi</option>';
+            NAME_options_str  += '<option value="Mwatunge Hill">Mwatunge Hill</option>';
+            NAME_options_str  += '<option value="Mwenga">Mwenga</option>';
+            NAME_options_str  += '<option value="Myoe">Myoe</option>';
+            NAME_options_str  += '<option value="Mzashai">Mzashai</option>';
+            NAME_options_str  += '<option value="Mzogoti">Mzogoti</option>';
+            NAME_options_str  += '<option value="Nagaga">Nagaga</option>';
+            NAME_options_str  += '<option value="Nagaliendele">Nagaliendele</option>';
+            NAME_options_str  += '<option value="Namakutwa/Namade">Namakutwa/Namade</option>';
+            NAME_options_str  += '<option value="Nambinga">Nambinga</option>';
+            NAME_options_str  += '<option value="Name Unknown No. 4">Name Unknown No. 4</option>';
+            NAME_options_str  += '<option value="Namikupa">Namikupa</option>';
+            NAME_options_str  += '<option value="Nampekeso">Nampekeso</option>';
+            NAME_options_str  += '<option value="Nandembo">Nandembo</option>';
+            NAME_options_str  += '<option value="Nandimba">Nandimba</option>';
+            NAME_options_str  += '<option value="Ndasha Hill">Ndasha Hill</option>';
+            NAME_options_str  += '<option value="Ndechela">Ndechela</option>';
+            NAME_options_str  += '<option value="Ndekemai">Ndekemai</option>';
+            NAME_options_str  += '<option value="Ndimba">Ndimba</option>';
+            NAME_options_str  += '<option value="Ndolwa">Ndolwa</option>';
+            NAME_options_str  += '<option value="Ndugumia">Ndugumia</option>';
+            NAME_options_str  += '<option value="Ndukunduku">Ndukunduku</option>';
+            NAME_options_str  += '<option value="Ndumbi Valley">Ndumbi Valley</option>';
+            NAME_options_str  += '<option value="Negoma">Negoma</option>';
+            NAME_options_str  += '<option value="Ngalijembe">Ngalijembe</option>';
+            NAME_options_str  += '<option value="Ngarama North">Ngarama North</option>';
+            NAME_options_str  += '<option value="Ngarambe-Tapika WMA">Ngarambe-Tapika WMA</option>';
+            NAME_options_str  += '<option value="Ngarusambu">Ngarusambu</option>';
+            NAME_options_str  += '<option value="Ngogwa">Ngogwa</option>';
+            NAME_options_str  += '<option value="Ngogwa Busangi">Ngogwa Busangi</option>';
+            NAME_options_str  += '<option value="Ngorongoro Conservation Area">Ngorongoro Conservation Area</option>';
+            NAME_options_str  += '<option value="Ngukumo">Ngukumo</option>';
+            NAME_options_str  += '<option value="Ngulakula">Ngulakula</option>';
+            NAME_options_str  += '<option value="Nguluka">Nguluka</option>';
+            NAME_options_str  += '<option value="Nguru North">Nguru North</option>';
+            NAME_options_str  += '<option value="Nguru ya Ndege">Nguru ya Ndege</option>';
+            NAME_options_str  += '<option value="Ngwasi">Ngwasi</option>';
+            NAME_options_str  += '<option value="Nindo">Nindo</option>';
+            NAME_options_str  += '<option value="Njilikwa">Njilikwa</option>';
+            NAME_options_str  += '<option value="Njogi">Njogi</option>';
+            NAME_options_str  += '<option value="No 10">No 10</option>';
+            NAME_options_str  += '<option value="No 19">No 19</option>';
+            NAME_options_str  += '<option value="No 20">No 20</option>';
+            NAME_options_str  += '<option value="North East Undendeule">North East Undendeule</option>';
+            NAME_options_str  += '<option value="North Kilimanjaro">North Kilimanjaro</option>';
+            NAME_options_str  += '<option value="North Makere">North Makere</option>';
+            NAME_options_str  += '<option value="North Mamiwa Kisara">North Mamiwa Kisara</option>';
+            NAME_options_str  += '<option value="Nou">Nou</option>';
+            NAME_options_str  += '<option value="Nshinde Hill">Nshinde Hill</option>';
+            NAME_options_str  += '<option value="Ntazu">Ntazu</option>';
+            NAME_options_str  += '<option value="Nyabasi">Nyabasi</option>';
+            NAME_options_str  += '<option value="Nyaganje">Nyaganje</option>';
+            NAME_options_str  += '<option value="Nyahua Mbuga">Nyahua Mbuga</option>';
+            NAME_options_str  += '<option value="Nyamilanga Hill">Nyamilanga Hill</option>';
+            NAME_options_str  += '<option value="Nyandiduma">Nyandiduma</option>';
+            NAME_options_str  += '<option value="Nyandira">Nyandira</option>';
+            NAME_options_str  += '<option value="Nyantakara">Nyantakara</option>';
+            NAME_options_str  += '<option value="Nyera/Kiperere">Nyera/Kiperere</option>';
+            NAME_options_str  += '<option value="Nyonga">Nyonga</option>';
+            NAME_options_str  += '<option value="Nyumburuni">Nyumburuni</option>';
+            NAME_options_str  += '<option value="Pagale">Pagale</option>';
+            NAME_options_str  += '<option value="Pala Mountains">Pala Mountains</option>';
+            NAME_options_str  += '<option value="Pangawe East">Pangawe East</option>';
+            NAME_options_str  += '<option value="Pangawe West">Pangawe West</option>';
+            NAME_options_str  += '<option value="Pawaga-Idodi WMA">Pawaga-Idodi WMA</option>';
+            NAME_options_str  += '<option value="Pindiro">Pindiro</option>';
+            NAME_options_str  += '<option value="Piti O.A. (W)">Piti O.A. (W)</option>';
+            NAME_options_str  += '<option value="Piti O.A.(E)">Piti O.A.(E)</option>';
+            NAME_options_str  += '<option value="Pongwe">Pongwe</option>';
+            NAME_options_str  += '<option value="Poroto Ridge">Poroto Ridge</option>';
+            NAME_options_str  += '<option value="Puge North">Puge North</option>';
+            NAME_options_str  += '<option value="Puge South">Puge South</option>';
+            NAME_options_str  += '<option value="Pugu">Pugu</option>';
+            NAME_options_str  += '<option value="Pumula">Pumula</option>';
+            NAME_options_str  += '<option value="Rau">Rau</option>';
+            NAME_options_str  += '<option value="Rondo">Rondo</option>';
+            NAME_options_str  += '<option value="Ruaha National Park">Ruaha National Park</option>';
+            NAME_options_str  += '<option value="Ruamagazi">Ruamagazi</option>';
+            NAME_options_str  += '<option value="Ruande">Ruande</option>';
+            NAME_options_str  += '<option value="Ruawa">Ruawa</option>';
+            NAME_options_str  += '<option value="Rubare">Rubare</option>';
+            NAME_options_str  += '<option value="Rubondo Island National Park">Rubondo Island National Park</option>';
+            NAME_options_str  += '<option value="Rubya">Rubya</option>';
+            NAME_options_str  += '<option value="Rudewa South">Rudewa South</option>';
+            NAME_options_str  += '<option value="Rufiji-Mafia-Kilwa">Rufiji-Mafia-Kilwa</option>';
+            NAME_options_str  += '<option value="Ruhidji/Ifinga O.A.">Ruhidji/Ifinga O.A.</option>';
+            NAME_options_str  += '<option value="Ruhoi River">Ruhoi River</option>';
+            NAME_options_str  += '<option value="Ruiga River">Ruiga River</option>';
+            NAME_options_str  += '<option value="Rukwa">Rukwa</option>';
+            NAME_options_str  += '<option value="Rungo">Rungo</option>';
+            NAME_options_str  += '<option value="Rungwa (N) O.A.">Rungwa (N) O.A.</option>';
+            NAME_options_str  += '<option value="Rungwa Mwamagembe G.R.">Rungwa Mwamagembe G.R.</option>';
+            NAME_options_str  += '<option value="Rungwa River G.C.A.">Rungwa River G.C.A.</option>';
+            NAME_options_str  += '<option value="Rungwa River GCA">Rungwa River GCA</option>';
+            NAME_options_str  += '<option value="Rungwe">Rungwe</option>';
+            NAME_options_str  += '<option value="Runzewe">Runzewe</option>';
+            NAME_options_str  += '<option value="Rupiage">Rupiage</option>';
+            NAME_options_str  += '<option value="Rushwezi">Rushwezi</option>';
+            NAME_options_str  += '<option value="Ruvu">Ruvu</option>';
+            NAME_options_str  += '<option value="Ruvu Masai GCA">Ruvu Masai GCA</option>';
+            NAME_options_str  += '<option value="Ruvu North">Ruvu North</option>';
+            NAME_options_str  += '<option value="Ruvu South">Ruvu South</option>';
+            NAME_options_str  += '<option value="Ruvuma O.A.">Ruvuma O.A.</option>';
+            NAME_options_str  += '<option value="Saadani">Saadani</option>';
+            NAME_options_str  += '<option value="Saanane Island National Park">Saanane Island National Park</option>';
+            NAME_options_str  += '<option value="Sakaranyumo">Sakaranyumo</option>';
+            NAME_options_str  += '<option value="Sakila">Sakila</option>';
+            NAME_options_str  += '<option value="Salanga/Bereku">Salanga/Bereku</option>';
+            NAME_options_str  += '<option value="Sali">Sali</option>';
+            NAME_options_str  += '<option value="Sambasha">Sambasha</option>';
+            NAME_options_str  += '<option value="Sao Hill">Sao Hill</option>';
+            NAME_options_str  += '<option value="Sao Hill extension">Sao Hill extension</option>';
+            NAME_options_str  += '<option value="Sasajila">Sasajila</option>';
+            NAME_options_str  += '<option value="Sasawara">Sasawara</option>';
+            NAME_options_str  += '<option value="Sawago">Sawago</option>';
+            NAME_options_str  += '<option value="Sayaka">Sayaka</option>';
+            NAME_options_str  += '<option value="Selous G.R">Selous G.R</option>';
+            NAME_options_str  += '<option value="Selous Game Reserve">Selous Game Reserve</option>';
+            NAME_options_str  += '<option value="Semdoe/Msige">Semdoe/Msige</option>';
+            NAME_options_str  += '<option value="Sengoma">Sengoma</option>';
+            NAME_options_str  += '<option value="Serengeti National Park">Serengeti National Park</option>';
+            NAME_options_str  += '<option value="Shagayu">Shagayu</option>';
+            NAME_options_str  += '<option value="Shambalai">Shambalai</option>';
+            NAME_options_str  += '<option value="Shinkurufumi">Shinkurufumi</option>';
+            NAME_options_str  += '<option value="Shume">Shume</option>';
+            NAME_options_str  += '<option value="Shume Magamba">Shume Magamba</option>';
+            NAME_options_str  += '<option value="Silupati">Silupati</option>';
+            NAME_options_str  += '<option value="Sima">Sima</option>';
+            NAME_options_str  += '<option value="Simanjiro GCA">Simanjiro GCA</option>';
+            NAME_options_str  += '<option value="Simbo">Simbo</option>';
+            NAME_options_str  += '<option value="Simbo_Bagamoyo">Simbo_Bagamoyo</option>';
+            NAME_options_str  += '<option value="Sisu">Sisu</option>';
+            NAME_options_str  += '<option value="Sola">Sola</option>';
+            NAME_options_str  += '<option value="Sola Dam">Sola Dam</option>';
+            NAME_options_str  += '<option value="Songa">Songa</option>';
+            NAME_options_str  += '<option value="Songea Fuel">Songea Fuel</option>';
+            NAME_options_str  += '<option value="Soni Public Land">Soni Public Land</option>';
+            NAME_options_str  += '<option value="South Gendagenda">South Gendagenda</option>';
+            NAME_options_str  += '<option value="Swagaswaga G.R">Swagaswaga G.R</option>';
+            NAME_options_str  += '<option value="Talaga">Talaga</option>';
+            NAME_options_str  += '<option value="Talagwe">Talagwe</option>';
+            NAME_options_str  += '<option value="Talamai O.A.">Talamai O.A.</option>';
+            NAME_options_str  += '<option value="Tambulu">Tambulu</option>';
+            NAME_options_str  += '<option value="Tarangire National Park">Tarangire National Park</option>';
+            NAME_options_str  += '<option value="Tarime">Tarime</option>';
+            NAME_options_str  += '<option value="Tongomba New">Tongomba New</option>';
+            NAME_options_str  += '<option value="Tongwe">Tongwe</option>';
+            NAME_options_str  += '<option value="Tongwe East">Tongwe East</option>';
+            NAME_options_str  += '<option value="Tunduru WMA">Tunduru WMA</option>';
+            NAME_options_str  += '<option value="Uduka">Uduka</option>';
+            NAME_options_str  += '<option value="Udzungwa Mountains National Park">Udzungwa Mountains National Park</option>';
+            NAME_options_str  += '<option value="Ufiome">Ufiome</option>';
+            NAME_options_str  += '<option value="Ugalla G.R. (N)">Ugalla G.R. (N)</option>';
+            NAME_options_str  += '<option value="Ugalla Niensi O.A.">Ugalla Niensi O.A.</option>';
+            NAME_options_str  += '<option value="Ugalla North">Ugalla North</option>';
+            NAME_options_str  += '<option value="Ugalla North O.A.">Ugalla North O.A.</option>';
+            NAME_options_str  += '<option value="Ugalla River">Ugalla River</option>';
+            NAME_options_str  += '<option value="Ugunda">Ugunda</option>';
+            NAME_options_str  += '<option value="Ukamba">Ukamba</option>';
+            NAME_options_str  += '<option value="Ukanga">Ukanga</option>';
+            NAME_options_str  += '<option value="Ukune">Ukune</option>';
+            NAME_options_str  += '<option value="Ukutu WMA">Ukutu WMA</option>';
+            NAME_options_str  += '<option value="Ukwiva">Ukwiva</option>';
+            NAME_options_str  += '<option value="Uluguru">Uluguru</option>';
+            NAME_options_str  += '<option value="Ulyankulu">Ulyankulu</option>';
+            NAME_options_str  += '<option value="Umalila">Umalila</option>';
+            NAME_options_str  += '<option value="Unyambiu North">Unyambiu North</option>';
+            NAME_options_str  += '<option value="Uponera">Uponera</option>';
+            NAME_options_str  += '<option value="Urumwa">Urumwa</option>';
+            NAME_options_str  += '<option value="Ushetu Ubagwe">Ushetu Ubagwe</option>';
+            NAME_options_str  += '<option value="Usindikwe">Usindikwe</option>';
+            NAME_options_str  += '<option value="Uvinza">Uvinza</option>';
+            NAME_options_str  += '<option value="Uyovu">Uyovu</option>';
+            NAME_options_str  += '<option value="Uyui - Kigwa">Uyui - Kigwa</option>';
+            NAME_options_str  += '<option value="Uyumbu WMA">Uyumbu WMA</option>';
+            NAME_options_str  += '<option value="Uzigua">Uzigua</option>';
+            NAME_options_str  += '<option value="Vigoregore">Vigoregore</option>';
+            NAME_options_str  += '<option value="Vigoza">Vigoza</option>';
+            NAME_options_str  += '<option value="Vikindu">Vikindu</option>';
+            NAME_options_str  += '<option value="Vikonje">Vikonje</option>';
+            NAME_options_str  += '<option value="Vugiri">Vugiri</option>';
+            NAME_options_str  += '<option value="Vumari">Vumari</option>';
+            NAME_options_str  += '<option value="Wala River">Wala River</option>';
+            NAME_options_str  += '<option value="Wami Mbiki WMA">Wami Mbiki WMA</option>';
+            NAME_options_str  += '<option value="Wembere GCA">Wembere GCA</option>';
+            NAME_options_str  += '<option value="Wembere O.A.">Wembere O.A.</option>';
+            NAME_options_str  += '<option value="West Kilimanjaro">West Kilimanjaro</option>';
+            NAME_options_str  += '<option value="West Kilimanjaro_ Sanya Range">West Kilimanjaro_ Sanya Range</option>';
+            NAME_options_str  += '<option value="Wino">Wino</option>';
+            NAME_options_str  += '<option value="Wotta">Wotta</option>';
+            NAME_options_str  += '<option value="Zaraninge">Zaraninge</option>';
+            NAME_options_str  += '<option value="Ziba">Ziba</option>';
+            NAME_options_str  += '<option value="Zinge">Zinge</option>';
+            NAME_options_str  += '<option value="Ziwani">Ziwani</option>';
+            sel_NAME.innerHTML = NAME_options_str;
+            div_NAME.appendChild(sel_NAME);
+            var lab_NAME = document.createElement('div');
+            lab_NAME.innerHTML = 'NAME';
+            lab_NAME.className = 'filterlabel';
+            div_NAME.appendChild(lab_NAME);
+            var reset_NAME = document.createElement('div');
+            reset_NAME.innerHTML = 'clear filter';
+            reset_NAME.className = 'filterlabel';
+            reset_NAME.onclick = function() {
+                var options = document.getElementById("sel_NAME").options;
+                for (var i=0; i < options.length; i++) {
+                    options[i].selected = false;
+                }
+                filterFunc();
+            };
+            div_NAME.appendChild(reset_NAME);
+            document.getElementById("menu").appendChild(
+                document.createElement("div"));
+            var div_Region_Nam = document.createElement('div');
+            div_Region_Nam.id = "div_Region_Nam";
+            div_Region_Nam.className= "filterselect";
+            document.getElementById("menu").appendChild(div_Region_Nam);
+            sel_Region_Nam = document.createElement('select');
+            sel_Region_Nam.multiple = true;
+            sel_Region_Nam.size = 10;
+            sel_Region_Nam.id = "sel_Region_Nam";
+            var Region_Nam_options_str = "<option value='' unselected></option>";
+            sel_Region_Nam.onchange = function(){filterFunc()};
+            Region_Nam_options_str  += '<option value="Arusha">Arusha</option>';
+            Region_Nam_options_str  += '<option value="Dar-es-salaam">Dar-es-salaam</option>';
+            Region_Nam_options_str  += '<option value="Dodoma">Dodoma</option>';
+            Region_Nam_options_str  += '<option value="Geita">Geita</option>';
+            Region_Nam_options_str  += '<option value="Iringa">Iringa</option>';
+            Region_Nam_options_str  += '<option value="Kagera">Kagera</option>';
+            Region_Nam_options_str  += '<option value="Kaskazini Pemba">Kaskazini Pemba</option>';
+            Region_Nam_options_str  += '<option value="Kaskazini Unguja">Kaskazini Unguja</option>';
+            Region_Nam_options_str  += '<option value="Katavi">Katavi</option>';
+            Region_Nam_options_str  += '<option value="Kigoma">Kigoma</option>';
+            Region_Nam_options_str  += '<option value="Kilimanjaro">Kilimanjaro</option>';
+            Region_Nam_options_str  += '<option value="Kusini Pemba">Kusini Pemba</option>';
+            Region_Nam_options_str  += '<option value="Kusini Unguja">Kusini Unguja</option>';
+            Region_Nam_options_str  += '<option value="Lindi">Lindi</option>';
+            Region_Nam_options_str  += '<option value="Manyara">Manyara</option>';
+            Region_Nam_options_str  += '<option value="Mara">Mara</option>';
+            Region_Nam_options_str  += '<option value="Mbeya">Mbeya</option>';
+            Region_Nam_options_str  += '<option value="Mjini Magharibi">Mjini Magharibi</option>';
+            Region_Nam_options_str  += '<option value="Morogoro">Morogoro</option>';
+            Region_Nam_options_str  += '<option value="Mtwara">Mtwara</option>';
+            Region_Nam_options_str  += '<option value="Mwanza">Mwanza</option>';
+            Region_Nam_options_str  += '<option value="Njombe">Njombe</option>';
+            Region_Nam_options_str  += '<option value="Pwani">Pwani</option>';
+            Region_Nam_options_str  += '<option value="Rukwa">Rukwa</option>';
+            Region_Nam_options_str  += '<option value="Ruvuma">Ruvuma</option>';
+            Region_Nam_options_str  += '<option value="Shinyanga">Shinyanga</option>';
+            Region_Nam_options_str  += '<option value="Simiyu">Simiyu</option>';
+            Region_Nam_options_str  += '<option value="Singida">Singida</option>';
+            Region_Nam_options_str  += '<option value="Songwe">Songwe</option>';
+            Region_Nam_options_str  += '<option value="Tabora">Tabora</option>';
+            Region_Nam_options_str  += '<option value="Tanga">Tanga</option>';
+            sel_Region_Nam.innerHTML = Region_Nam_options_str;
+            div_Region_Nam.appendChild(sel_Region_Nam);
+            var lab_Region_Nam = document.createElement('div');
+            lab_Region_Nam.innerHTML = 'Region_Nam';
+            lab_Region_Nam.className = 'filterlabel';
+            div_Region_Nam.appendChild(lab_Region_Nam);
+            var reset_Region_Nam = document.createElement('div');
+            reset_Region_Nam.innerHTML = 'clear filter';
+            reset_Region_Nam.className = 'filterlabel';
+            reset_Region_Nam.onclick = function() {
+                var options = document.getElementById("sel_Region_Nam").options;
+                for (var i=0; i < options.length; i++) {
+                    options[i].selected = false;
+                }
+                filterFunc();
+            };
+            div_Region_Nam.appendChild(reset_Region_Nam);
+            document.getElementById("menu").appendChild(
+                document.createElement("div"));
+            var div_NewDist20 = document.createElement('div');
+            div_NewDist20.id = "div_NewDist20";
+            div_NewDist20.className= "filterselect";
+            document.getElementById("menu").appendChild(div_NewDist20);
+            sel_NewDist20 = document.createElement('select');
+            sel_NewDist20.multiple = true;
+            sel_NewDist20.size = 10;
+            sel_NewDist20.id = "sel_NewDist20";
+            var NewDist20_options_str = "<option value='' unselected></option>";
+            sel_NewDist20.onchange = function(){filterFunc()};
+            NewDist20_options_str  += '<option value="Arusha DC">Arusha DC</option>';
+            NewDist20_options_str  += '<option value="Arusha MC">Arusha MC</option>';
+            NewDist20_options_str  += '<option value="Babati DC">Babati DC</option>';
+            NewDist20_options_str  += '<option value="Babati MC">Babati MC</option>';
+            NewDist20_options_str  += '<option value="Bagamoyo DC">Bagamoyo DC</option>';
+            NewDist20_options_str  += '<option value="Bahi DC">Bahi DC</option>';
+            NewDist20_options_str  += '<option value="Bariadi DC">Bariadi DC</option>';
+            NewDist20_options_str  += '<option value="Bariadi TC">Bariadi TC</option>';
+            NewDist20_options_str  += '<option value="Biharamulo DC">Biharamulo DC</option>';
+            NewDist20_options_str  += '<option value="Buchosa DC">Buchosa DC</option>';
+            NewDist20_options_str  += '<option value="Buhigwe DC">Buhigwe DC</option>';
+            NewDist20_options_str  += '<option value="Bukoba DC">Bukoba DC</option>';
+            NewDist20_options_str  += '<option value="Bukoba MC">Bukoba MC</option>';
+            NewDist20_options_str  += '<option value="Bukombe DC">Bukombe DC</option>';
+            NewDist20_options_str  += '<option value="Bumbuli DC">Bumbuli DC</option>';
+            NewDist20_options_str  += '<option value="Bunda DC">Bunda DC</option>';
+            NewDist20_options_str  += '<option value="Bunda TC">Bunda TC</option>';
+            NewDist20_options_str  += '<option value="Busega DC">Busega DC</option>';
+            NewDist20_options_str  += '<option value="Busokelo DC">Busokelo DC</option>';
+            NewDist20_options_str  += '<option value="Butiama DC">Butiama DC</option>';
+            NewDist20_options_str  += '<option value="Chake Chake">Chake Chake</option>';
+            NewDist20_options_str  += '<option value="Chalinze DC">Chalinze DC</option>';
+            NewDist20_options_str  += '<option value="Chamwino DC">Chamwino DC</option>';
+            NewDist20_options_str  += '<option value="Chato DC">Chato DC</option>';
+            NewDist20_options_str  += '<option value="Chemba DC">Chemba DC</option>';
+            NewDist20_options_str  += '<option value="Chunya DC">Chunya DC</option>';
+            NewDist20_options_str  += '<option value="Dodoma CC">Dodoma CC</option>';
+            NewDist20_options_str  += '<option value="Gairo DC">Gairo DC</option>';
+            NewDist20_options_str  += '<option value="Geita DC">Geita DC</option>';
+            NewDist20_options_str  += '<option value="Geita TC">Geita TC</option>';
+            NewDist20_options_str  += '<option value="Hai DC">Hai DC</option>';
+            NewDist20_options_str  += '<option value="Hanang DC">Hanang DC</option>';
+            NewDist20_options_str  += '<option value="Handeni DC">Handeni DC</option>';
+            NewDist20_options_str  += '<option value="Handeni TC">Handeni TC</option>';
+            NewDist20_options_str  += '<option value="Ifakara TC">Ifakara TC</option>';
+            NewDist20_options_str  += '<option value="Igunga DC">Igunga DC</option>';
+            NewDist20_options_str  += '<option value="Ikungi DC">Ikungi DC</option>';
+            NewDist20_options_str  += '<option value="Ilala MC">Ilala MC</option>';
+            NewDist20_options_str  += '<option value="Ileje DC">Ileje DC</option>';
+            NewDist20_options_str  += '<option value="Ilemela MC">Ilemela MC</option>';
+            NewDist20_options_str  += '<option value="Iramba DC">Iramba DC</option>';
+            NewDist20_options_str  += '<option value="Iringa DC">Iringa DC</option>';
+            NewDist20_options_str  += '<option value="Iringa MC">Iringa MC</option>';
+            NewDist20_options_str  += '<option value="Itigi DC">Itigi DC</option>';
+            NewDist20_options_str  += '<option value="Itilima DC">Itilima DC</option>';
+            NewDist20_options_str  += '<option value="Kahama TC">Kahama TC</option>';
+            NewDist20_options_str  += '<option value="Kakonko DC">Kakonko DC</option>';
+            NewDist20_options_str  += '<option value="Kalambo DC">Kalambo DC</option>';
+            NewDist20_options_str  += '<option value="Kaliua DC">Kaliua DC</option>';
+            NewDist20_options_str  += '<option value="Karagwe DC">Karagwe DC</option>';
+            NewDist20_options_str  += '<option value="Karatu DC">Karatu DC</option>';
+            NewDist20_options_str  += '<option value="Kaskazini A">Kaskazini A</option>';
+            NewDist20_options_str  += '<option value="Kaskazini B">Kaskazini B</option>';
+            NewDist20_options_str  += '<option value="Kasulu DC">Kasulu DC</option>';
+            NewDist20_options_str  += '<option value="Kasulu TC">Kasulu TC</option>';
+            NewDist20_options_str  += '<option value="Kati">Kati</option>';
+            NewDist20_options_str  += '<option value="Kibaha DC">Kibaha DC</option>';
+            NewDist20_options_str  += '<option value="Kibaha TC">Kibaha TC</option>';
+            NewDist20_options_str  += '<option value="Kibiti DC">Kibiti DC</option>';
+            NewDist20_options_str  += '<option value="Kibondo DC">Kibondo DC</option>';
+            NewDist20_options_str  += '<option value="Kigamboni MC">Kigamboni MC</option>';
+            NewDist20_options_str  += '<option value="Kigoma DC">Kigoma DC</option>';
+            NewDist20_options_str  += '<option value="Kigoma Municipal-Ujiji">Kigoma Municipal-Ujiji</option>';
+            NewDist20_options_str  += '<option value="Kilindi DC">Kilindi DC</option>';
+            NewDist20_options_str  += '<option value="Kilolo DC">Kilolo DC</option>';
+            NewDist20_options_str  += '<option value="Kilombero DC">Kilombero DC</option>';
+            NewDist20_options_str  += '<option value="Kilosa DC">Kilosa DC</option>';
+            NewDist20_options_str  += '<option value="Kilwa DC">Kilwa DC</option>';
+            NewDist20_options_str  += '<option value="Kinondoni MC">Kinondoni MC</option>';
+            NewDist20_options_str  += '<option value="Kisarawe DC">Kisarawe DC</option>';
+            NewDist20_options_str  += '<option value="Kishapu DC">Kishapu DC</option>';
+            NewDist20_options_str  += '<option value="Kiteto DC">Kiteto DC</option>';
+            NewDist20_options_str  += '<option value="Kondoa DC">Kondoa DC</option>';
+            NewDist20_options_str  += '<option value="Kondoa TC">Kondoa TC</option>';
+            NewDist20_options_str  += '<option value="Kongwa DC">Kongwa DC</option>';
+            NewDist20_options_str  += '<option value="Korogwe DC">Korogwe DC</option>';
+            NewDist20_options_str  += '<option value="Korogwe TC">Korogwe TC</option>';
+            NewDist20_options_str  += '<option value="Kusini">Kusini</option>';
+            NewDist20_options_str  += '<option value="Kwimba DC">Kwimba DC</option>';
+            NewDist20_options_str  += '<option value="Kyela DC">Kyela DC</option>';
+            NewDist20_options_str  += '<option value="Kyerwa DC">Kyerwa DC</option>';
+            NewDist20_options_str  += '<option value="Lindi DC">Lindi DC</option>';
+            NewDist20_options_str  += '<option value="Lindi MC">Lindi MC</option>';
+            NewDist20_options_str  += '<option value="Liwale DC">Liwale DC</option>';
+            NewDist20_options_str  += '<option value="Longido DC">Longido DC</option>';
+            NewDist20_options_str  += '<option value="Ludewa DC">Ludewa DC</option>';
+            NewDist20_options_str  += '<option value="Lushoto DC">Lushoto DC</option>';
+            NewDist20_options_str  += '<option value="Madaba DC">Madaba DC</option>';
+            NewDist20_options_str  += '<option value="Mafia DC">Mafia DC</option>';
+            NewDist20_options_str  += '<option value="Mafinga TC">Mafinga TC</option>';
+            NewDist20_options_str  += '<option value="Magharibi A">Magharibi A</option>';
+            NewDist20_options_str  += '<option value="Magharibi B">Magharibi B</option>';
+            NewDist20_options_str  += '<option value="Magu DC">Magu DC</option>';
+            NewDist20_options_str  += '<option value="Makambako TC">Makambako TC</option>';
+            NewDist20_options_str  += '<option value="Makete DC">Makete DC</option>';
+            NewDist20_options_str  += '<option value="Malinyi DC">Malinyi DC</option>';
+            NewDist20_options_str  += '<option value="Manyoni DC">Manyoni DC</option>';
+            NewDist20_options_str  += '<option value="Masasi DC">Masasi DC</option>';
+            NewDist20_options_str  += '<option value="Masasi TC">Masasi TC</option>';
+            NewDist20_options_str  += '<option value="Maswa DC">Maswa DC</option>';
+            NewDist20_options_str  += '<option value="Mbarali DC">Mbarali DC</option>';
+            NewDist20_options_str  += '<option value="Mbeya DC">Mbeya DC</option>';
+            NewDist20_options_str  += '<option value="Mbeya MC">Mbeya MC</option>';
+            NewDist20_options_str  += '<option value="Mbinga DC">Mbinga DC</option>';
+            NewDist20_options_str  += '<option value="Mbinga TC">Mbinga TC</option>';
+            NewDist20_options_str  += '<option value="Mbogwe DC">Mbogwe DC</option>';
+            NewDist20_options_str  += '<option value="Mbozi DC">Mbozi DC</option>';
+            NewDist20_options_str  += '<option value="Mbulu DC">Mbulu DC</option>';
+            NewDist20_options_str  += '<option value="Mbulu TC">Mbulu TC</option>';
+            NewDist20_options_str  += '<option value="Meatu DC">Meatu DC</option>';
+            NewDist20_options_str  += '<option value="Meru DC">Meru DC</option>';
+            NewDist20_options_str  += '<option value="Micheweni">Micheweni</option>';
+            NewDist20_options_str  += '<option value="Missenyi DC">Missenyi DC</option>';
+            NewDist20_options_str  += '<option value="Misungwi DC">Misungwi DC</option>';
+            NewDist20_options_str  += '<option value="Mjini">Mjini</option>';
+            NewDist20_options_str  += '<option value="Mkalama DC">Mkalama DC</option>';
+            NewDist20_options_str  += '<option value="Mkinga DC">Mkinga DC</option>';
+            NewDist20_options_str  += '<option value="Mkoani">Mkoani</option>';
+            NewDist20_options_str  += '<option value="Mkuranga DC">Mkuranga DC</option>';
+            NewDist20_options_str  += '<option value="Mlele DC">Mlele DC</option>';
+            NewDist20_options_str  += '<option value="Momba DC">Momba DC</option>';
+            NewDist20_options_str  += '<option value="Monduli DC">Monduli DC</option>';
+            NewDist20_options_str  += '<option value="Morogoro DC">Morogoro DC</option>';
+            NewDist20_options_str  += '<option value="Morogoro MC">Morogoro MC</option>';
+            NewDist20_options_str  += '<option value="Moshi DC">Moshi DC</option>';
+            NewDist20_options_str  += '<option value="Moshi MC">Moshi MC</option>';
+            NewDist20_options_str  += '<option value="Mpanda DC">Mpanda DC</option>';
+            NewDist20_options_str  += '<option value="Mpanda MC">Mpanda MC</option>';
+            NewDist20_options_str  += '<option value="Mpimbwe DC">Mpimbwe DC</option>';
+            NewDist20_options_str  += '<option value="Mpwapwa DC">Mpwapwa DC</option>';
+            NewDist20_options_str  += '<option value="Msalala DC">Msalala DC</option>';
+            NewDist20_options_str  += '<option value="Mtwara DC">Mtwara DC</option>';
+            NewDist20_options_str  += '<option value="Mtwara MC">Mtwara MC</option>';
+            NewDist20_options_str  += '<option value="Mufindi DC">Mufindi DC</option>';
+            NewDist20_options_str  += '<option value="Muheza DC">Muheza DC</option>';
+            NewDist20_options_str  += '<option value="Muleba DC">Muleba DC</option>';
+            NewDist20_options_str  += '<option value="Musoma DC">Musoma DC</option>';
+            NewDist20_options_str  += '<option value="Musoma MC">Musoma MC</option>';
+            NewDist20_options_str  += '<option value="Mvomero DC">Mvomero DC</option>';
+            NewDist20_options_str  += '<option value="Mwanga DC">Mwanga DC</option>';
+            NewDist20_options_str  += '<option value="Nachingwea DC">Nachingwea DC</option>';
+            NewDist20_options_str  += '<option value="Namtumbo DC">Namtumbo DC</option>';
+            NewDist20_options_str  += '<option value="Nanyamba TC">Nanyamba TC</option>';
+            NewDist20_options_str  += '<option value="Nanyumbu DC">Nanyumbu DC</option>';
+            NewDist20_options_str  += '<option value="Newala DC">Newala DC</option>';
+            NewDist20_options_str  += '<option value="Newala TC">Newala TC</option>';
+            NewDist20_options_str  += '<option value="Ngara DC">Ngara DC</option>';
+            NewDist20_options_str  += '<option value="Ngorongoro DC">Ngorongoro DC</option>';
+            NewDist20_options_str  += '<option value="Njombe DC">Njombe DC</option>';
+            NewDist20_options_str  += '<option value="Njombe MC">Njombe MC</option>';
+            NewDist20_options_str  += '<option value="Nkasi DC">Nkasi DC</option>';
+            NewDist20_options_str  += '<option value="Nsimbo DC">Nsimbo DC</option>';
+            NewDist20_options_str  += '<option value="Nyamagana MC">Nyamagana MC</option>';
+            NewDist20_options_str  += '<option value="Nyang&apos;wale DC">Nyang&apos;wale DC</option>';
+            NewDist20_options_str  += '<option value="Nyasa DC">Nyasa DC</option>';
+            NewDist20_options_str  += '<option value="Nzega DC">Nzega DC</option>';
+            NewDist20_options_str  += '<option value="Nzega TC">Nzega TC</option>';
+            NewDist20_options_str  += '<option value="Pangani DC">Pangani DC</option>';
+            NewDist20_options_str  += '<option value="Rombo DC">Rombo DC</option>';
+            NewDist20_options_str  += '<option value="Rorya DC">Rorya DC</option>';
+            NewDist20_options_str  += '<option value="Ruangwa DC">Ruangwa DC</option>';
+            NewDist20_options_str  += '<option value="Rufiji DC">Rufiji DC</option>';
+            NewDist20_options_str  += '<option value="Rungwe DC">Rungwe DC</option>';
+            NewDist20_options_str  += '<option value="Same DC">Same DC</option>';
+            NewDist20_options_str  += '<option value="Sengerema DC">Sengerema DC</option>';
+            NewDist20_options_str  += '<option value="Serengeti DC">Serengeti DC</option>';
+            NewDist20_options_str  += '<option value="Shinyanga DC">Shinyanga DC</option>';
+            NewDist20_options_str  += '<option value="Shinyanga MC">Shinyanga MC</option>';
+            NewDist20_options_str  += '<option value="Siha DC">Siha DC</option>';
+            NewDist20_options_str  += '<option value="Sikonge DC">Sikonge DC</option>';
+            NewDist20_options_str  += '<option value="Simanjiro DC">Simanjiro DC</option>';
+            NewDist20_options_str  += '<option value="Singida DC">Singida DC</option>';
+            NewDist20_options_str  += '<option value="Singida MC">Singida MC</option>';
+            NewDist20_options_str  += '<option value="Songea DC">Songea DC</option>';
+            NewDist20_options_str  += '<option value="Songea MC">Songea MC</option>';
+            NewDist20_options_str  += '<option value="Songwe DC">Songwe DC</option>';
+            NewDist20_options_str  += '<option value="Sumbawanga DC">Sumbawanga DC</option>';
+            NewDist20_options_str  += '<option value="Sumbawanga MC">Sumbawanga MC</option>';
+            NewDist20_options_str  += '<option value="Tabora MC">Tabora MC</option>';
+            NewDist20_options_str  += '<option value="Tandahimba DC">Tandahimba DC</option>';
+            NewDist20_options_str  += '<option value="Tanga CC">Tanga CC</option>';
+            NewDist20_options_str  += '<option value="Tarime DC">Tarime DC</option>';
+            NewDist20_options_str  += '<option value="Tarime TC">Tarime TC</option>';
+            NewDist20_options_str  += '<option value="Temeke MC">Temeke MC</option>';
+            NewDist20_options_str  += '<option value="Tunduma DC">Tunduma DC</option>';
+            NewDist20_options_str  += '<option value="Tunduru DC">Tunduru DC</option>';
+            NewDist20_options_str  += '<option value="Ubungo MC">Ubungo MC</option>';
+            NewDist20_options_str  += '<option value="Ukerewe DC">Ukerewe DC</option>';
+            NewDist20_options_str  += '<option value="Ulanga DC">Ulanga DC</option>';
+            NewDist20_options_str  += '<option value="Urambo DC">Urambo DC</option>';
+            NewDist20_options_str  += '<option value="Ushetu DC">Ushetu DC</option>';
+            NewDist20_options_str  += '<option value="Uvinza DC">Uvinza DC</option>';
+            NewDist20_options_str  += '<option value="Uyui DC">Uyui DC</option>';
+            NewDist20_options_str  += '<option value="Wanging&apos;ombe DC">Wanging&apos;ombe DC</option>';
+            NewDist20_options_str  += '<option value="Wete">Wete</option>';
+            sel_NewDist20.innerHTML = NewDist20_options_str;
+            div_NewDist20.appendChild(sel_NewDist20);
+            var lab_NewDist20 = document.createElement('div');
+            lab_NewDist20.innerHTML = 'NewDist20';
+            lab_NewDist20.className = 'filterlabel';
+            div_NewDist20.appendChild(lab_NewDist20);
+            var reset_NewDist20 = document.createElement('div');
+            reset_NewDist20.innerHTML = 'clear filter';
+            reset_NewDist20.className = 'filterlabel';
+            reset_NewDist20.onclick = function() {
+                var options = document.getElementById("sel_NewDist20").options;
+                for (var i=0; i < options.length; i++) {
+                    options[i].selected = false;
+                }
+                filterFunc();
+            };
+            div_NewDist20.appendChild(reset_NewDist20);
+        </script>
+    </body>
+</html>
